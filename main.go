@@ -21,7 +21,7 @@ func (s *server) SayHello(ctx context.Context, in *hw.HelloRequest) (*hw.HelloRe
 }
 
 func startGRPC(port string) error {
-	lis, err := net.Listen("tcp", port)
+	lis, err := net.Listen("tcp", ":"+port)
 	if err != nil {
 		return err
 	}
