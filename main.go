@@ -31,6 +31,16 @@ func startGRPC(port string) error {
 	return s.Serve(lis)
 }
 
+func cors(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		Set(w, AccessControl{
+			Origin:         "*",
+			AllowedMethods: []string{"GET", "HEAD", "OPTIONS", "POST", "PUT", "DELETE", "PATCH"},
+		})
+		next.ServeHTTP(w, r)
+	})
+}
+
 func startHTTP(httpPort, grpcPort string) error {
 	schema, err := ioutil.ReadFile("helloworld/helloworld.swagger.json")
 	if err != nil {
@@ -48,18 +58,14 @@ func startHTTP(httpPort, grpcPort string) error {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/v1/helloworld/greeter/swagger", func(w http.ResponseWriter, r *http.Request) {
-		Set(w, AccessControl{
-			Origin:         "*",
-			AllowedMethods: []string{"GET", "HEAD", "OPTIONS"},
-		})
 		Set(w, ContentType("application/json"))
-
 		w.WriteHeader(http.StatusOK)
 		w.Write(schema)
 	})
-	mux.Handle("/", gwmux)
+	mux.Handle("/v1/", gwmux)
+	mux.Handle("/", http.FileServer(http.Dir("swagger-ui")))
 
-	http.ListenAndServe(":"+httpPort, mux)
+	http.ListenAndServe(":"+httpPort, cors(mux))
 	return nil
 }
 
