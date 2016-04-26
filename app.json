@@ -1,0 +1,7 @@
+{
+  "name": "GRPC Go Sample",
+  "description": "A barebones Go REST API using GRPC",
+  "repository": "https://github.com/kyleconroy/grpc-on-heroku",
+  "logo": "https://raw.githubusercontent.com/kyleconroy/grpc-on-heroku/logo/grpc-logo.png",
+  "keywords": ["grpc", "go"]
+}
