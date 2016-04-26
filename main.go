@@ -1,6 +1,7 @@
 package main
 
 import (
+	"io/ioutil"
 	"log"
 	"net"
 	"net/http"
@@ -31,16 +32,27 @@ func startGRPC(port string) error {
 }
 
 func startHTTP(httpPort, grpcPort string) error {
+	schema, err := ioutil.ReadFile("helloworld/helloworld.swagger.json")
+	if err != nil {
+		return err
+	}
 	ctx := context.Background()
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	mux := runtime.NewServeMux()
+	gwmux := runtime.NewServeMux()
 	opts := []grpc.DialOption{grpc.WithInsecure()}
-	err := hw.RegisterGreeterHandlerFromEndpoint(ctx, mux, "127.0.0.1:"+grpcPort, opts)
-	if err != nil {
+	if err := hw.RegisterGreeterHandlerFromEndpoint(ctx, gwmux, "127.0.0.1:"+grpcPort, opts); err != nil {
 		return err
 	}
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("/v1/helloworld/greeter/swagger", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write(schema)
+	})
+	mux.Handle("/", gwmux)
 
 	http.ListenAndServe(":"+httpPort, mux)
 	return nil

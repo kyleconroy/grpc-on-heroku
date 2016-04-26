@@ -42,7 +42,7 @@ service Greeter {
   // Sends a greeting
   rpc SayHello (HelloRequest) returns (HelloReply) {
     option (google.api.http) = {
-      post: "/v1/greeter/say-hello"
+      post: "/v1/helloworld/greeter/say-hello"
       body: "*"
     };
   }
@@ -57,3 +57,16 @@ message HelloRequest {
 message HelloReply {
   string message = 1;
 }
+
+// message Info {
+//   string version = 1;
+//   string title = 2;
+// }
+// 
+// message Schema {
+//   string swagger = 1;
+//   Info info = 2;
+//   repeated string schemes = 3;
+//   repeated string consumes = 4;
+//   repeated string produces = 5;
+// }
