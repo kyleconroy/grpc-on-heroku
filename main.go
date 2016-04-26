@@ -48,7 +48,12 @@ func startHTTP(httpPort, grpcPort string) error {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/v1/helloworld/greeter/swagger", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
+		Set(w, AccessControl{
+			Origin:         "*",
+			AllowedMethods: []string{"GET", "HEAD", "OPTIONS"},
+		})
+		Set(w, ContentType("application/json"))
+
 		w.WriteHeader(http.StatusOK)
 		w.Write(schema)
 	})
